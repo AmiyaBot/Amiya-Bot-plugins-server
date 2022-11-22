@@ -19,6 +19,10 @@ server = HttpServer(HOST, PORT, title='AmiyaBot-PluginsServer', uvicorn_options=
 uploader = COSUploader(SECRET_ID, SECRET_KEY, logger_level=logging.FATAL)
 
 
+class RecordModel(BaseModel):
+    plugin_id: str
+
+
 class CommitModel(BaseModel):
     file: str
     name: str

@@ -166,6 +166,21 @@ async def get_plugins():
     )
 
 
+@server.app.get('/getHistoryVersion')
+async def get_history_version(plugin_id: str):
+    return server.response(
+        data=query_to_list(
+            PluginRelease.select().where(PluginRelease.plugin_id == plugin_id).order_by(PluginRelease.id.desc())
+        )
+    )
+
+
+@server.app.post('/recordInstalledCount')
+async def record_installed_count(data: RecordModel):
+    Plugin.update(download_num=Plugin.download_num + 1).where(Plugin.plugin_id == data.plugin_id).execute()
+    return server.response()
+
+
 @server.app.get('/image', response_class=StreamingResponse)
 async def get_image(path: str):
     return StreamingResponse(open(path, mode='rb'), media_type='image/png')
