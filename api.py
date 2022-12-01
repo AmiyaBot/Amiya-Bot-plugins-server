@@ -205,4 +205,21 @@ async def heartbeat(appid: str, request: Request):
 
 @server.app.get('/getBotCommunity')
 async def get_bot_community():
-    return server.response(data=query_to_list(BotCommunity.select()))
+    online = 0
+    deploy = []
+
+    res: Union[List[BotCommunity], peewee.ModelSelect] = BotCommunity.select()
+
+    now = time.time() - 300
+
+    for item in res:
+        if item.source_address not in deploy:
+            deploy.append(item.source_address)
+        if now < item.last_beat:
+            online += 1
+
+    return server.response(data={
+        'online': online,
+        'deploy': len(deploy),
+        'count': res.count()
+    })
