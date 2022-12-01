@@ -14,6 +14,13 @@ class BaseModelClass(ModelClass):
 
 
 @table
+class BotCommunity(BaseModelClass):
+    appid: str = CharField(unique=True)
+    source_address: str = CharField(null=True)
+    last_beat: int = BigIntegerField(null=True)
+
+
+@table
 class Plugin(BaseModelClass):
     plugin_id: str = CharField(null=True)
     author: str = CharField(null=True)

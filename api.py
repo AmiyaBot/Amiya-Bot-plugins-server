@@ -2,7 +2,7 @@ import os
 import time
 import shutil
 
-from fastapi import File, UploadFile
+from fastapi import File, UploadFile, Request
 from fastapi.responses import StreamingResponse
 from amiyabot import AmiyaBot
 from amiyabot.util import random_code
@@ -184,3 +184,25 @@ async def record_installed_count(data: RecordModel):
 @server.app.get('/image', response_class=StreamingResponse)
 async def get_image(path: str):
     return StreamingResponse(open(path, mode='rb'), media_type='image/png')
+
+
+@server.app.get('/heartbeat')
+async def heartbeat(appid: str, request: Request):
+    bot: BotCommunity = BotCommunity.get_or_none(appid=appid)
+    if bot:
+        BotCommunity.update(
+            source_address=request.client.host,
+            last_beat=int(time.time())
+        ).where(BotCommunity.appid == appid).execute()
+    else:
+        BotCommunity.create(
+            appid=appid,
+            source_address=request.client.host,
+            last_beat=int(time.time())
+        )
+    return server.response()
+
+
+@server.app.get('/getBotCommunity')
+async def get_bot_community():
+    return server.response(data=query_to_list(BotCommunity.select()))
